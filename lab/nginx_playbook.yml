@@ -1,0 +1,10 @@
+---
+- name: Install and configure nginx on webservers
+  hosts: webservers
+  become: yes
+  roles: 
+    - nginx
+  vars:
+    page_title: "Hello"
+
+  

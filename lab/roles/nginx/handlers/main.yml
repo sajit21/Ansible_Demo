@@ -1,0 +1,17 @@
+---
+# handlers file for nginx
+- name: restart nginx
+  ansible.builtin.shell: |
+        pkill nginx 2>/dev/null || true
+        nginx
+  args:
+  executable: /bin/bash
+  register: nginx_restart
+  changed_when: nginx_restart.rc == 0
+  failed_when: false
+
+- name: start nginx
+  ansible.builtin.command: nginx
+  register: nginx_start
+  changed_when: nginx_start.rc == 0
+  failed_when: false

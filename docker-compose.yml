@@ -1,0 +1,71 @@
+services:
+  base:
+    build:
+      context: ./hosts/
+      dockerfile: Dockerfile.base
+    image: lab_base
+    networks:
+      - lab_network
+
+  ansible:
+    build:
+      context: ./hosts/
+      dockerfile: Dockerfile.ansible
+    image: ansible_controller
+    hostname: ansible_controller
+    container_name: ansible_controller
+    volumes:
+      - ./lab:/home/ubuntu/lab:rw
+    depends_on:
+      - base
+    networks:
+      lab_network:
+        ipv4_address: 10.5.0.10
+    command: ["-c", "sudo /usr/sbin/sshd -D"]
+
+  webserver1:
+    image: lab_base
+    container_name: webserver1
+    hostname: webserver1
+    ports:
+      - "8081:80"
+    depends_on:
+      - base
+    networks:
+      lab_network:
+        ipv4_address: 10.5.0.20
+    command: ["-c", "sudo /usr/sbin/sshd -D"]
+
+  webserver2:
+    image: lab_base
+    container_name: webserver2
+    hostname: webserver2
+    ports:
+      - "8082:80"
+    depends_on:
+      - base
+    networks:
+      lab_network:
+        ipv4_address: 10.5.0.30
+    command: ["-c", "sudo /usr/sbin/sshd -D"]
+
+  loadbalancer:
+    image: lab_base
+    container_name: loadbalancer
+    hostname: loadbalancer
+    ports:
+      - "8080:80"
+    depends_on:
+      - base
+    networks:
+      lab_network:
+        ipv4_address: 10.5.0.100
+    command: ["-c", "sudo /usr/sbin/sshd -D"]
+
+networks:
+  lab_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1

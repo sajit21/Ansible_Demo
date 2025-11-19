@@ -1,0 +1,19 @@
+FROM ubuntu:22.04
+
+ARG USERNAME="ubuntu"
+ARG PASSWORD="ubuntu"
+
+RUN apt update \
+    && apt install --no-install-recommends --no-install-suggests -y \
+    python3 python-is-python3 vim man openssh-server iputils-ping net-tools sudo
+
+RUN mkdir -p /run/sshd && chmod 0755 /run/sshd
+
+
+RUN useradd -m "${USERNAME}" -s /bin/bash && echo "${USERNAME}":"${PASSWORD}" | chpasswd && adduser "${USERNAME}" sudo
+
+RUN echo "${USERNAME} ALL=(ALL:ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/${USERNAME}
+
+USER "${USERNAME}"
+
+ENTRYPOINT [ "/bin/bash" ]

@@ -1,0 +1,13 @@
+---
+backend_servers:
+  - name: webserver1
+    ip: webserver1
+    port: 80
+  - name: webserver2
+    ip: webserver2
+    port: 80
+
+# Load balancer settings
+lb_listen_port: 80
+lb_server_name: loadbalancer
+lb_upstream_name: webservers_backend

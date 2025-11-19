@@ -1,0 +1,7 @@
+FROM lab_base:latest
+
+RUN echo "export ANSIBLE_CONFIG=ansible.cfg" >> /home/ubuntu/.bashrc
+
+RUN sudo apt update \
+    && sudo apt install --no-install-recommends --no-install-suggests -y \
+    ansible sshpass

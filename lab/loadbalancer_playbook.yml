@@ -1,0 +1,78 @@
+---
+- name: Configure nginx load balancer
+  hosts: loadbalancers
+  become: yes
+
+  vars_files:
+    - vars/loadbalancer_vars.yml
+
+  handlers:
+    - name: restart nginx
+      ansible.builtin.shell: |
+        pkill nginx 2>/dev/null || true
+        nginx
+      args:
+        executable: /bin/bash
+      register: nginx_restart
+      changed_when: nginx_restart.rc == 0
+      failed_when: false
+
+    - name: start nginx
+      ansible.builtin.command: nginx
+      register: nginx_start
+      changed_when: nginx_start.rc == 0
+      failed_when: false
+
+  tasks:
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install nginx
+      ansible.builtin.apt:
+        name: "nginx"
+        state: present
+      notify: start nginx
+
+    - name: Remove default nginx site configuration
+      ansible.builtin.file:
+        path: "/etc/nginx/sites-enabled/default"
+        state: absent
+      notify: restart nginx
+
+    - name: Deploy load balancer configuration from template
+      ansible.builtin.template:
+        src: templates/loadbalancer.conf.j2
+        dest: "/etc/nginx/sites-available/loadbalancer.conf"
+        mode: "0644"
+      notify: restart nginx
+
+    - name: Enable load balancer site configuration
+      ansible.builtin.file:
+        src: "/etc/nginx/sites-available/loadbalancer.conf"
+        dest: "/etc/nginx/sites-enabled/loadbalancer.conf"
+        state: link
+      notify: restart nginx
+
+    - name: Ensure nginx is running
+      ansible.builtin.command: pgrep nginx
+      register: nginx_check
+      changed_when: false
+      failed_when: false
+
+    - name: Start nginx if not running
+      ansible.builtin.command: nginx
+      when: nginx_check.rc != 0
+
+    - name: Verify nginx is running
+      ansible.builtin.command: pgrep nginx
+      register: nginx_verify
+      changed_when: false
+      failed_when: nginx_verify.rc != 0
+
+    - name: Display load balancer status
+      ansible.builtin.debug:
+        msg:
+          - "Load balancer is running on {{ inventory_hostname }} at {{ ansible_host }}"
+          - "Backend servers: {% for server in backend_servers %}{{ server.name }}:{{ server.port }}{% if not loop.last %}, {% endif %}{% endfor %}"

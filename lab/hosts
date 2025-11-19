@@ -1,0 +1,15 @@
+[all]
+webserver1 ansible_host=webserver1 ansible_user=ubuntu ansible_password=ubuntu
+webserver2 ansible_host=webserver2 ansible_user=ubuntu ansible_password=ubuntu
+loadbalancer ansible_host=loadbalancer ansible_user=ubuntu ansible_password=ubuntu
+
+[webservers]
+webserver1
+webserver2
+
+[loadbalancers]
+loadbalancer
+
+[ubuntu:children]
+webservers
+loadbalancers

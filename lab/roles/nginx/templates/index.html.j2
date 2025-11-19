@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page_title }} - {{ inventory_hostname }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 50px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        .info {
+            color: #666;
+            margin-top: 20px;
+        }
+        .status {
+            background-color: red;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ page_title }} - {{ inventory_hostname }}</h1>
+        <div class="info">
+            <p><strong>Server:</strong> {{ inventory_hostname }}</p>
+            <p><strong>IP Address:</strong> {{ ansible_host }}</p>
+            <p><strong>OS:</strong> {{ ansible_distribution }} {{ ansible_distribution_version }}</p>
+        </div>
+        <div class="status">
+            Nginx is configured and running
+        </div>
+    </div>
+</body>
+</html>
